@@ -141,3 +141,10 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# GitGaze specific
+backend/gitgaze.db
+backend/gitgaze.db-wal
+backend/gitgaze.db-shm
+.venv/
+node_modules/

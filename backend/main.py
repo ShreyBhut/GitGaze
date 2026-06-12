@@ -5,9 +5,9 @@ from pydantic import BaseModel
 
 from analysis.orchestrator import AnalyzerOrchestrator
 
-# Pydantic model to automatically validate incoming JSON requests
+# UPDATE 1: Change 'repo_path' to 'path' to match the frontend JSON
 class AnalyzeRequest(BaseModel):
-    repo_path: str
+    path: str
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -16,10 +16,9 @@ def create_app() -> FastAPI:
         version="0.1.0",
     )
 
-    # Configure CORS to allow our frontend to communicate with the backend
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Note: For production, we will lock this down to the frontend URL
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -35,11 +34,13 @@ def create_app() -> FastAPI:
         Takes a local repository path, runs the core analysis engine, 
         and returns the structured repository data.
         """
-        if not os.path.exists(request.repo_path):
+        # UPDATE 2: Change request.repo_path to request.path
+        if not os.path.exists(request.path):
             raise HTTPException(status_code=400, detail="Repository path does not exist on the server.")
         
         try:
-            orchestrator = AnalyzerOrchestrator(request.repo_path)
+            # UPDATE 3: Change request.repo_path to request.path
+            orchestrator = AnalyzerOrchestrator(request.path)
             results = orchestrator.analyze_repo()
             return {"status": "success", "data": results}
         except Exception as e:

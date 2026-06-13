@@ -1,3 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─── Design Tokens ────────────────────────────────────────────────────── */
+:root {
+  --bg-base:        #020817;
+  --bg-surface:     #0d1526;
+  --bg-elevated:    #111d35;
+  --bg-hover:       #162040;
+
+  --border:         rgba(99, 130, 201, 0.12);
+  --border-strong:  rgba(99, 130, 201, 0.22);
+
+  --accent:         #6366f1;
+  --accent-hover:   #818cf8;
+  --accent-glow:    rgba(99, 102, 241, 0.25);
+
+  --success:        #22d3a0;
+  --warning:        #f59e0b;
+  --danger:         #f43f5e;
+
+  --text-primary:   #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted:     #475569;
+
+  --radius:         0.75rem;
+  --radius-sm:      0.5rem;
+  --radius-lg:      1rem;
+
+  --shadow-sm:      0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md:      0 4px 16px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+  --shadow-glow:    0 0 0 1px var(--accent-glow), 0 4px 24px var(--accent-glow);
+}
+
+/* ─── Base Resets ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code, pre, kbd, .mono {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── Utility Classes ────────────────────────────────────────────────────── */
+@layer components {
+  /* Cards */
+  .card {
+    @apply rounded-xl border bg-[color:var(--bg-surface)] border-[color:var(--border)];
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { border-color: var(--border-strong); }
+  .card-elevated {
+    @apply card;
+    background-color: var(--bg-elevated);
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97];
+  }
+  .btn-primary {
+    @apply btn text-white;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 var(--accent-glow);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+    box-shadow: var(--shadow-glow);
+  }
+  .btn-ghost {
+    @apply btn text-[color:var(--text-secondary)];
+    background: transparent;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+  .btn-danger {
+    @apply btn;
+    color: var(--danger);
+    background: rgba(244, 63, 94, 0.1);
+    border: 1px solid rgba(244, 63, 94, 0.2);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: rgba(244, 63, 94, 0.2);
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full rounded-lg px-3 py-2 text-sm outline-none transition-all duration-150;
+    background: var(--bg-base);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: inherit;
+  }
+  .input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .input::placeholder { color: var(--text-muted); }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+  .badge-success { background: rgba(34,211,160,0.12); color: var(--success); }
+  .badge-warning { background: rgba(245,158,11,0.12); color: var(--warning); }
+  .badge-danger  { background: rgba(244,63,94,0.12);  color: var(--danger);  }
+  .badge-info    { background: rgba(99,102,241,0.12); color: var(--accent-hover); }
+  .badge-muted   { background: var(--bg-hover); color: var(--text-muted); }
+
+  /* Dividers */
+  .divider { @apply border-t border-[color:var(--border)] my-4; }
+
+  /* Label */
+  .label {
+    @apply block text-xs font-semibold uppercase tracking-wider mb-1.5;
+    color: var(--text-muted);
+  }
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  50%       { box-shadow: 0 0 0 6px transparent; }
+}
+
+.animate-fade-in      { animation: fadeIn 0.2s ease both; }
+.animate-slide-right  { animation: slideInRight 0.2s ease both; }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-hover) 50%, var(--bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius-sm);
+}

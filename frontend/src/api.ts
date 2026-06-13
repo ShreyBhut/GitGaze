@@ -7,7 +7,8 @@ export const analyzeRepository = async (repoPath: string) => {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ repo_path: repoPath }), 
+        // Fixed: use "path" not "repo_path" to match the backend API contract
+        body: JSON.stringify({ path: repoPath }),
     });
 
     if (!response.ok) {

@@ -1,19 +1,36 @@
-import os
-from fastapi import FastAPI, HTTPException
+"""
+main.py — GitGaze FastAPI application entry point.
+"""
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
-from analysis.orchestrator import AnalyzerOrchestrator
+from database import engine, Base
+from routers.analysis import router as analysis_router
 
-# UPDATE 1: Change 'repo_path' to 'path' to match the frontend JSON
-class AnalyzeRequest(BaseModel):
-    path: str
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Runs on startup: create all SQLAlchemy tables if they don't exist.
+    This is idempotent — safe to call every time the server starts.
+    """
+    async with engine.begin() as conn:
+        # Import models so SQLAlchemy is aware of them before create_all
+        import models  # noqa: F401, PLC0415
+        await conn.run_sync(Base.metadata.create_all)
+
+    yield
+    # (teardown code here if needed in the future)
+
 
 def create_app() -> FastAPI:
     app = FastAPI(
         title="GitGaze API",
         description="Repository Analysis & Visualization System",
         version="0.1.0",
+        lifespan=lifespan,
     )
 
     app.add_middleware(
@@ -24,28 +41,15 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    @app.get("/health")
+    # --- Health check (no router needed, lives here) ---
+    @app.get("/health", tags=["meta"])
     async def health_check():
         return {"status": "ok", "service": "GitGaze Backend"}
 
-    @app.post("/api/analyze")
-    async def analyze_repository(request: AnalyzeRequest):
-        """
-        Takes a local repository path, runs the core analysis engine, 
-        and returns the structured repository data.
-        """
-        # UPDATE 2: Change request.repo_path to request.path
-        if not os.path.exists(request.path):
-            raise HTTPException(status_code=400, detail="Repository path does not exist on the server.")
-        
-        try:
-            # UPDATE 3: Change request.repo_path to request.path
-            orchestrator = AnalyzerOrchestrator(request.path)
-            results = orchestrator.analyze_repo()
-            return {"status": "success", "data": results}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+    # --- Feature routers ---
+    app.include_router(analysis_router)
 
     return app
+
 
 app = create_app()

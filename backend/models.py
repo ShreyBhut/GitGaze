@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, UTC
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, JSON, Text, UniqueConstraint
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, DateTime, JSON, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -69,6 +69,8 @@ class FileNode(Base):
     metrics = Column(JSON, nullable=True)           # {loc, sloc, comments, blanks}
     imports = Column(JSON, nullable=True)           # list of raw import strings
     functions = Column(JSON, nullable=True)         # list of {name, start_line, end_line}
+    pos_x = Column(Float, nullable=True)            # saved canvas X position (Phase 5)
+    pos_y = Column(Float, nullable=True)            # saved canvas Y position (Phase 5)
 
     snapshot = relationship("Snapshot", back_populates="file_nodes")
 

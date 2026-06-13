@@ -15,10 +15,11 @@ import asyncio
 import json
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
@@ -266,6 +267,8 @@ async def get_graph(
                 "metrics": n.metrics or {},
                 "imports": n.imports or [],
                 "functions": n.functions or [],
+                "pos_x": n.pos_x,
+                "pos_y": n.pos_y,
             }
             for n in file_nodes
         ],
@@ -280,6 +283,54 @@ async def get_graph(
             for e in edges
         ],
     }
+
+
+# ---------------------------------------------------------------------------
+# Node position persistence (PATCH)
+# ---------------------------------------------------------------------------
+
+class NodePosition(BaseModel):
+    x: float
+    y: float
+
+
+@router.patch(
+    "/api/v1/snapshots/{snapshot_id}/graph/positions",
+    summary="Persist manually-positioned node coordinates",
+)
+async def save_graph_positions(
+    snapshot_id: str,
+    positions: Dict[str, NodePosition] = Body(..., description="{node_id: {x, y}}"),
+    session: AsyncSession = Depends(get_db),
+):
+    """
+    Saves canvas positions for one or more nodes so the layout is preserved
+    between sessions. Only nodes present in `positions` are updated (partial update).
+    """
+    snapshot = await _get_snapshot_or_404(snapshot_id, session)
+
+    if snapshot.status != "completed":
+        raise HTTPException(
+            status_code=409,
+            detail="Cannot save positions for a snapshot that is not completed.",
+        )
+
+    updated = 0
+    for node_id, pos in positions.items():
+        result = await session.execute(
+            select(FileNode).where(
+                FileNode.id == node_id,
+                FileNode.snapshot_id == snapshot_id,
+            )
+        )
+        node = result.scalar_one_or_none()
+        if node:
+            node.pos_x = pos.x
+            node.pos_y = pos.y
+            updated += 1
+
+    await session.commit()
+    return {"updated": updated}
 
 
 # ---------------------------------------------------------------------------

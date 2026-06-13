@@ -69,6 +69,15 @@ export const snapshotsApi = {
   getGraph: (snapshotId: string): Promise<GraphData> =>
     request(`${BASE}/snapshots/${snapshotId}/graph`),
 
+  savePositions: (
+    snapshotId: string,
+    positions: Record<string, { x: number; y: number }>
+  ): Promise<{ updated: number }> =>
+    request(`${BASE}/snapshots/${snapshotId}/graph/positions`, {
+      method: 'PATCH',
+      body: JSON.stringify(positions),
+    }),
+
   /**
    * Returns a native EventSource for the SSE progress stream.
    * Caller is responsible for calling .close() when done.

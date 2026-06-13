@@ -47,6 +47,8 @@ export interface FileNode {
   };
   imports: string[];
   functions: Array<{ name: string; start_line: number; end_line: number }>;
+  pos_x: number | null;
+  pos_y: number | null;
 }
 
 export interface DependencyEdge {

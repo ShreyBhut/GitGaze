@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 from database import engine, Base
 from routers.analysis import router as legacy_analysis_router
@@ -16,10 +17,23 @@ from routers.snapshots import router as snapshots_router
 async def lifespan(app: FastAPI):
     """
     Startup: create all SQLAlchemy tables if they don't exist (idempotent).
+    Also runs additive column migrations for columns added after initial schema creation.
     """
     async with engine.begin() as conn:
         import models  # noqa: F401, PLC0415 — registers all ORM classes with Base
         await conn.run_sync(Base.metadata.create_all)
+
+        # Additive migrations: add new columns to existing tables without losing data.
+        # SQLite ALTER TABLE does not support IF NOT EXISTS, so we use try/except.
+        _new_columns = [
+            "ALTER TABLE file_nodes ADD COLUMN pos_x REAL",
+            "ALTER TABLE file_nodes ADD COLUMN pos_y REAL",
+        ]
+        for sql in _new_columns:
+            try:
+                await conn.execute(text(sql))
+            except Exception:
+                pass  # Column already exists — safe to ignore
 
     yield
     # Teardown hooks go here when needed (e.g., flush queues, close connections)

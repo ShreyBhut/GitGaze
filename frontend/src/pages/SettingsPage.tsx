@@ -7,7 +7,7 @@ export function SettingsPage() {
       <div className="flex items-center gap-3 mb-8">
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.25)' }}
+          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
         >
           <Settings size={18} style={{ color: 'var(--accent)' }} />
         </div>
@@ -19,7 +19,7 @@ export function SettingsPage() {
 
       <div
         className="card p-5 flex items-start gap-3"
-        style={{ borderColor: 'rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.05)' }}
+        style={{ borderColor: 'rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.03)' }}
       >
         <Info size={16} style={{ color: 'var(--accent)', marginTop: 2, flexShrink: 0 }} />
         <div>

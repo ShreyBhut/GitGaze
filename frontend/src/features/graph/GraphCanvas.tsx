@@ -88,14 +88,14 @@ function buildRFData(graphData: GraphData): { nodes: Node[]; edges: Edge[] } {
     source: e.source,
     target: e.target,
     type: 'smoothstep',
-    animated: false,
+    animated: true,
     style: {
-      stroke: 'rgba(99,102,241,0.35)',
+      stroke: '#ffffff',
       strokeWidth: 1.5,
     },
     markerEnd: {
       type: 'arrowclosed' as const,
-      color: 'rgba(99,102,241,0.5)',
+      color: '#ffffff',
       width: 12,
       height: 12,
     },
@@ -201,22 +201,22 @@ export function GraphCanvas({ graphData, snapshotId, onNodeSelect }: Props) {
         minZoom={0.08}
         maxZoom={2}
         defaultEdgeOptions={{ type: 'smoothstep' }}
-        style={{ background: 'var(--bg-base)' }}
+        style={{ background: '#18181b' }}
         proOptions={{ hideAttribution: true }}
       >
         {/* Dot grid background */}
         <Background
           variant={BackgroundVariant.Dots}
           gap={28}
-          size={1.2}
-          color="rgba(99,130,201,0.12)"
+          size={1.5}
+          color="rgba(255,255,255,0.15)"
         />
 
         {/* Zoom / fit controls */}
         <Controls
           style={{
             background: 'var(--bg-elevated)',
-            border: '1px solid var(--border)',
+            border: '1px solid #000000',
             borderRadius: 10,
             overflow: 'hidden',
           }}
@@ -227,7 +227,7 @@ export function GraphCanvas({ graphData, snapshotId, onNodeSelect }: Props) {
           nodeColor={miniMapNodeColor}
           style={{
             background: 'var(--bg-elevated)',
-            border: '1px solid var(--border)',
+            border: '1px solid #000000',
             borderRadius: 10,
           }}
           maskColor="rgba(2,8,23,0.7)"
@@ -293,14 +293,14 @@ export function GraphCanvas({ graphData, snapshotId, onNodeSelect }: Props) {
           </div>
         </Panel>
 
-        {/* Bottom-left: hint */}
-        <Panel position="bottom-left">
+        {/* Bottom-center: hint */}
+        <Panel position="bottom-center">
           <div
             style={{
               fontSize: 10,
               color: 'var(--text-muted)',
               background: 'var(--bg-elevated)',
-              border: '1px solid var(--border)',
+              border: '1px solid #000000',
               borderRadius: 8,
               padding: '4px 10px',
               opacity: 0.7,

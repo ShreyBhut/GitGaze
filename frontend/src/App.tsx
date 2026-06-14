@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from './components/layout/AppShell';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { AnalysisPage } from './pages/AnalysisPage';
+import { AnalysisIndexPage } from './pages/AnalysisIndexPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
       <Route element={<AppShell />}>
         <Route index element={<Navigate to="/projects" replace />} />
         <Route path="projects" element={<ProjectsPage />} />
+        <Route path="analysis" element={<AnalysisIndexPage />} />
         <Route path="analysis/:projectId/:snapshotId" element={<AnalysisPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>

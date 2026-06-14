@@ -50,7 +50,7 @@ export function ProjectCard({ project }: Props) {
       <div className="flex items-start gap-3">
         <div
           className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-          style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)' }}
         >
           <FolderGit2 size={16} style={{ color: 'var(--accent)' }} />
         </div>

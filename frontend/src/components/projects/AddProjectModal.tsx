@@ -78,7 +78,7 @@ export function AddProjectModal({ open, onClose }: Props) {
             <div className="flex items-center gap-3">
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)' }}
               >
                 <FolderOpen size={15} style={{ color: 'var(--accent)' }} />
               </div>

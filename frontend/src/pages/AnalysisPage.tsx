@@ -1,7 +1,7 @@
 // src/pages/AnalysisPage.tsx
 // Full analysis view: SSE progress → stats → interactive graph canvas + inspector panel.
 import { useCallback, useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, BarChart3, FileCode2, GitBranch, Layers } from 'lucide-react';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -18,7 +18,6 @@ export function AnalysisPage() {
     projectId: string;
     snapshotId: string;
   }>();
-  const navigate = useNavigate();
   const { setActiveSnapshotId, setGraphData, graphData: storeGraph, reset } = useGraphStore();
   const [selectedNode, setSelectedNode] = useState<FileNode | null>(null);
 
@@ -139,7 +138,7 @@ export function AnalysisPage() {
                 ? { background: 'rgba(34,211,160,0.12)', color: 'var(--success)' }
                 : isFailed
                 ? { background: 'rgba(244,63,94,0.12)', color: 'var(--danger)' }
-                : { background: 'rgba(99,102,241,0.12)', color: 'var(--accent-hover)' }),
+                : { background: 'rgba(255,255,255,0.12)', color: 'var(--text-primary)' }),
             }}
           >
             {snapshot.status}

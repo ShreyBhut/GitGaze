@@ -22,7 +22,7 @@ export function AppShell() {
             className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
             style={{ background: 'var(--accent)', boxShadow: '0 0 12px var(--accent-glow)' }}
           >
-            <Zap size={14} className="text-white" />
+            <Zap size={14} className="text-black" />
           </div>
           <div>
             <p className="text-sm font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
@@ -43,13 +43,13 @@ export function AppShell() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                   isActive
-                    ? 'text-white'
-                    : 'hover:text-white'
+                    ? 'text-black'
+                    : 'hover:text-primary'
                 }`
               }
               style={({ isActive }) =>
                 isActive
-                  ? { background: 'var(--accent)', boxShadow: '0 0 12px var(--accent-glow)', color: 'white' }
+                  ? { background: 'var(--accent)', boxShadow: '0 0 12px var(--accent-glow)', color: 'black' }
                   : { color: 'var(--text-secondary)' }
               }
             >

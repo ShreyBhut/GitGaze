@@ -40,12 +40,12 @@ export const FileNodeComponent = memo(({ data, selected }: NodeProps<any>) => {
     <div
       style={{
         background: selected
-          ? 'rgba(17,29,53,0.98)'
-          : 'rgba(13,21,38,0.95)',
-        border: `1px solid ${selected ? 'var(--accent)' : 'rgba(99,130,201,0.18)'}`,
+          ? '#f1f5f9'
+          : '#ffffff',
+        border: `1px solid ${selected ? 'var(--accent)' : 'rgba(0,0,0,0.1)'}`,
         boxShadow: selected
-          ? '0 0 0 2px rgba(99,102,241,0.35), 0 4px 20px rgba(0,0,0,0.5)'
-          : '0 2px 8px rgba(0,0,0,0.35)',
+          ? '0 0 0 2px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.15)'
+          : '0 2px 8px rgba(0,0,0,0.08)',
         borderRadius: 10,
         padding: '10px 14px',
         width: 220,
@@ -85,7 +85,7 @@ export const FileNodeComponent = memo(({ data, selected }: NodeProps<any>) => {
           style={{
             fontSize: 12,
             fontWeight: 600,
-            color: 'var(--text-primary)',
+            color: '#000000',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -118,7 +118,7 @@ export const FileNodeComponent = memo(({ data, selected }: NodeProps<any>) => {
         <div
           style={{
             fontSize: 9,
-            color: 'var(--text-muted)',
+            color: '#475569',
             fontFamily: 'monospace',
             marginBottom: 6,
             overflow: 'hidden',
@@ -138,8 +138,8 @@ export const FileNodeComponent = memo(({ data, selected }: NodeProps<any>) => {
           display: 'flex',
           gap: 8,
           fontSize: 10,
-          color: 'var(--text-muted)',
-          borderTop: '1px solid rgba(99,130,201,0.1)',
+          color: '#475569',
+          borderTop: '1px solid rgba(0,0,0,0.06)',
           paddingTop: 6,
         }}
       >
@@ -169,7 +169,7 @@ function MetricChip({ label, value }: { label: string; value: number }) {
   return (
     <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
       <span style={{ opacity: 0.55 }}>{label}</span>
-      <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{value}</span>
+      <span style={{ color: '#000000', fontWeight: 600 }}>{value}</span>
     </span>
   );
 }

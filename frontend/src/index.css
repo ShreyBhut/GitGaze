@@ -6,25 +6,25 @@
 
 /* ─── Design Tokens ────────────────────────────────────────────────────── */
 :root {
-  --bg-base:        #020817;
-  --bg-surface:     #0d1526;
-  --bg-elevated:    #111d35;
-  --bg-hover:       #162040;
+  --bg-base:        #000000;
+  --bg-surface:     #0a0a0a;
+  --bg-elevated:    #141414;
+  --bg-hover:       #1f1f1f;
 
-  --border:         rgba(99, 130, 201, 0.12);
-  --border-strong:  rgba(99, 130, 201, 0.22);
+  --border:         rgba(255, 255, 255, 0.1);
+  --border-strong:  rgba(255, 255, 255, 0.2);
 
-  --accent:         #6366f1;
-  --accent-hover:   #818cf8;
-  --accent-glow:    rgba(99, 102, 241, 0.25);
+  --accent:         #ffffff;
+  --accent-hover:   #e5e5e5;
+  --accent-glow:    rgba(255, 255, 255, 0.15);
 
   --success:        #22d3a0;
   --warning:        #f59e0b;
   --danger:         #f43f5e;
 
-  --text-primary:   #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted:     #475569;
+  --text-primary:   #ffffff;
+  --text-secondary: #a3a3a3;
+  --text-muted:     #737373;
 
   --radius:         0.75rem;
   --radius-sm:      0.5rem;
@@ -83,7 +83,7 @@ code, pre, kbd, .mono {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 select-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97];
   }
   .btn-primary {
-    @apply btn text-white;
+    @apply btn text-black;
     background: var(--accent);
     box-shadow: 0 0 0 0 var(--accent-glow);
   }
@@ -130,7 +130,7 @@ code, pre, kbd, .mono {
   .badge-success { background: rgba(34,211,160,0.12); color: var(--success); }
   .badge-warning { background: rgba(245,158,11,0.12); color: var(--warning); }
   .badge-danger  { background: rgba(244,63,94,0.12);  color: var(--danger);  }
-  .badge-info    { background: rgba(99,102,241,0.12); color: var(--accent-hover); }
+  .badge-info    { background: rgba(255,255,255,0.12); color: var(--text-primary); }
   .badge-muted   { background: var(--bg-hover); color: var(--text-muted); }
 
   /* Dividers */
@@ -169,4 +169,16 @@ code, pre, kbd, .mono {
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
   border-radius: var(--radius-sm);
+}
+
+/* ─── React Flow Overrides ─────────────────────────────────────────────── */
+.react-flow__controls-button {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e5e5e5 !important;
+}
+.react-flow__controls-button svg {
+  fill: #000000 !important;
+}
+.react-flow__controls-button:hover {
+  background-color: #f1f5f9 !important;
 }

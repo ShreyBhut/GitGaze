@@ -90,12 +90,12 @@ function buildRFData(graphData: GraphData): { nodes: Node[]; edges: Edge[] } {
     type: 'smoothstep',
     animated: true,
     style: {
-      stroke: '#ffffff',
+      stroke: 'rgba(255, 255, 255, 0.3)',
       strokeWidth: 1.5,
     },
     markerEnd: {
       type: 'arrowclosed' as const,
-      color: '#ffffff',
+      color: 'rgba(255, 255, 255, 0.3)',
       width: 12,
       height: 12,
     },

@@ -11,6 +11,7 @@ from database import engine, Base
 from routers.analysis import router as legacy_analysis_router
 from routers.projects import router as projects_router
 from routers.snapshots import router as snapshots_router
+from routers.auth import router as auth_router
 
 
 @asynccontextmanager
@@ -49,7 +50,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -61,6 +62,7 @@ def create_app() -> FastAPI:
         return {"status": "ok", "service": "GitGaze Backend", "version": "0.2.0"}
 
     # --- v1 API routers ---
+    app.include_router(auth_router)       # /api/v1/auth
     app.include_router(projects_router)   # /api/v1/projects
     app.include_router(snapshots_router)  # /api/v1/snapshots + /api/v1/projects/{id}/snapshots
 

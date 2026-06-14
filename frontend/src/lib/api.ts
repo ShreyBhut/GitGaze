@@ -16,6 +16,7 @@ const BASE = 'http://localhost:8000/api/v1';
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     ...init,
   });
   if (!res.ok) {
@@ -28,16 +29,24 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 // ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+export const authApi = {
+  getMe: (): Promise<{ id: string; username: string; avatar_url: string }> =>
+    request(`${BASE}/auth/me`),
+};
+
+// ---------------------------------------------------------------------------
 // Projects
 // ---------------------------------------------------------------------------
 export const projectsApi = {
   list: (): Promise<ProjectsListResponse> =>
     request(`${BASE}/projects`),
 
-  create: (name: string, path: string): Promise<Project> =>
+  create: (name: string, github_url: string): Promise<Project> =>
     request(`${BASE}/projects`, {
       method: 'POST',
-      body: JSON.stringify({ name, path }),
+      body: JSON.stringify({ name, github_url }),
     }),
 
   get: (id: string): Promise<Project> =>

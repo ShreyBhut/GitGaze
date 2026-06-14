@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, UTC
-from sqlalchemy import Column, String, Integer, Float, ForeignKey, DateTime, JSON, Text, UniqueConstraint
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, DateTime, JSON, Text, UniqueConstraint, Boolean
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -9,14 +9,31 @@ def generate_uuid():
     return str(uuid.uuid4())
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    github_id = Column(String, unique=True, nullable=False)
+    username = Column(String, nullable=False)
+    avatar_url = Column(String, nullable=True)
+    access_token = Column(String, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+
+    projects = relationship("Project", back_populates="user")
+
+
 class Project(Base):
     __tablename__ = "projects"
 
     id = Column(String, primary_key=True, default=generate_uuid)
     name = Column(String, nullable=False)
-    path = Column(String, nullable=False, unique=True)
+    github_url = Column(String, nullable=False, unique=True)
+    path = Column(String, nullable=False)
+    is_private = Column(Boolean, default=False)
+    user_id = Column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
+    user = relationship("User", back_populates="projects")
     snapshots = relationship("Snapshot", back_populates="project", cascade="all, delete-orphan")
     config = relationship("AnalysisConfig", back_populates="project", uselist=False, cascade="all, delete-orphan")
 

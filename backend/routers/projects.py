@@ -22,7 +22,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
 from database import get_db
-from models import Project, Snapshot, AnalysisConfig
+from models import Project, Snapshot, AnalysisConfig, User
+from routers.auth import get_current_user
+from services.git_service import clone_repository
+import urllib.request
+import urllib.error
 
 router = APIRouter(prefix="/api/v1/projects", tags=["projects"])
 
@@ -33,17 +37,7 @@ router = APIRouter(prefix="/api/v1/projects", tags=["projects"])
 
 class ProjectCreate(BaseModel):
     name: str
-    path: str
-
-    @field_validator("path")
-    @classmethod
-    def path_must_exist(cls, v: str) -> str:
-        v = v.strip()
-        if not os.path.exists(v):
-            raise ValueError(f"Path does not exist on the server: {v}")
-        if not os.path.isdir(v):
-            raise ValueError("Path must be a directory, not a file.")
-        return v
+    github_url: str
 
     @field_validator("name")
     @classmethod
@@ -155,21 +149,56 @@ async def list_projects(session: AsyncSession = Depends(get_db)):
 async def create_project(
     body: ProjectCreate,
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
-    # Check for existing project at the same path
+    github_url = body.github_url.strip()
+    if github_url.endswith("/"):
+        github_url = github_url[:-1]
+    if not github_url.endswith(".git"):
+        github_url += ".git"
+
+    # Check for existing project with same URL
     existing = await session.execute(
-        select(Project).where(Project.path == body.path)
+        select(Project).where(Project.github_url == github_url)
     )
     if existing.scalar_one_or_none():
         raise HTTPException(
             status_code=409,
-            detail=f"A project already exists for path: {body.path}",
+            detail=f"A project already exists for URL: {github_url}",
         )
+
+    # Check if repo is public or private
+    is_private = False
+    try:
+        # A simple HEAD request to see if it's accessible without auth
+        req = urllib.request.Request(github_url.replace(".git", ""), method="HEAD")
+        urllib.request.urlopen(req)
+    except urllib.error.HTTPError as e:
+        if e.code in (401, 403, 404):
+            is_private = True
+    except Exception:
+        # Other network error, default to private to try with token
+        is_private = True
+
+    if is_private and not user:
+        raise HTTPException(status_code=401, detail="Repository is private or not found. Please login with GitHub.")
+
+    # Determine clone path
+    repo_name = github_url.split("/")[-1].replace(".git", "")
+    dest_dir = os.path.abspath(os.path.join("data", "repos", str(uuid.uuid4()), repo_name))
+
+    try:
+        await clone_repository(github_url, dest_dir, access_token=user.access_token if user else None)
+    except RuntimeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     project = Project(
         id=str(uuid.uuid4()),
         name=body.name,
-        path=body.path,
+        github_url=github_url,
+        path=dest_dir,
+        is_private=is_private,
+        user_id=user.id if user else None
     )
     session.add(project)
 

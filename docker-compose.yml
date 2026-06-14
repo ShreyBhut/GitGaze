@@ -12,6 +12,8 @@ services:
       # Mount the host C drive to allow the backend to analyze local repositories on Windows
       # Docker Desktop on Windows maps C:\ to /c/ or /host_mnt/c depending on the WSL setup
       - /c:/c
+    env_file:
+      - .env
     environment:
       - TESTING=0
 

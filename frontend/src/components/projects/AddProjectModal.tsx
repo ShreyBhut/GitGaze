@@ -11,7 +11,7 @@ interface Props {
 
 export function AddProjectModal({ open, onClose }: Props) {
   const [name, setName] = useState('');
-  const [path, setPath] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
   const [error, setError] = useState('');
   const nameRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
@@ -21,7 +21,7 @@ export function AddProjectModal({ open, onClose }: Props) {
     if (open) {
       setTimeout(() => nameRef.current?.focus(), 50);
       setName('');
-      setPath('');
+      setGithubUrl('');
       setError('');
     }
   }, [open]);
@@ -34,7 +34,7 @@ export function AddProjectModal({ open, onClose }: Props) {
   }, [onClose]);
 
   const mutation = useMutation({
-    mutationFn: () => projectsApi.create(name.trim(), path.trim()),
+    mutationFn: () => projectsApi.create(name.trim(), githubUrl.trim()),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.projects() });
       onClose();
@@ -46,7 +46,7 @@ export function AddProjectModal({ open, onClose }: Props) {
     e.preventDefault();
     setError('');
     if (!name.trim()) return setError('Project name is required.');
-    if (!path.trim()) return setError('Repository path is required.');
+    if (!githubUrl.trim()) return setError('GitHub URL is required.');
     mutation.mutate();
   };
 
@@ -57,7 +57,7 @@ export function AddProjectModal({ open, onClose }: Props) {
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-40"
-        style={{ background: 'rgba(2,8,23,0.7)', backdropFilter: 'blur(4px)' }}
+        style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
 
@@ -112,18 +112,18 @@ export function AddProjectModal({ open, onClose }: Props) {
             </div>
 
             <div>
-              <label htmlFor="proj-path" className="label">Repository Path</label>
+              <label htmlFor="proj-path" className="label">GitHub Repository URL</label>
               <input
                 id="proj-path"
                 className="input font-mono text-xs"
-                placeholder="C:/Users/you/repos/my-project"
-                value={path}
-                onChange={(e) => setPath(e.target.value)}
+                placeholder="https://github.com/username/repository"
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
                 autoComplete="off"
                 spellCheck={false}
               />
               <p className="mt-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                Absolute path to the repository root on this machine.
+                The HTTPS clone URL of the repository on GitHub.
               </p>
             </div>
 

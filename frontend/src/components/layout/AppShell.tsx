@@ -1,6 +1,7 @@
-// src/components/layout/AppShell.tsx
+import { useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { FolderGit2, BarChart3, Settings, Zap } from 'lucide-react';
+import { FolderGit2, BarChart3, Settings, Zap, LogIn } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
   { to: '/projects', icon: FolderGit2, label: 'Projects' },
@@ -9,6 +10,12 @@ const navItems = [
 ];
 
 export function AppShell() {
+  const { user, isLoading, checkAuth, login } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg-base)' }}>
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
@@ -60,8 +67,27 @@ export function AppShell() {
         </nav>
 
         {/* Footer */}
-        <div className="px-5 py-4 border-t text-[10px]" style={{ borderColor: 'var(--border)', color: 'var(--text-muted)' }}>
-          Repository Analysis System
+        <div className="px-5 py-4 border-t" style={{ borderColor: 'var(--border)' }}>
+          {isLoading ? (
+            <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>Loading...</div>
+          ) : user ? (
+            <div className="flex items-center gap-3">
+              <img src={user.avatar_url} alt={user.username} className="w-8 h-8 rounded-full border border-zinc-700" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user.username}</p>
+                <p className="text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>GitHub User</p>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={login}
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold transition-all"
+              style={{ background: 'white', color: 'black' }}
+            >
+              <LogIn size={14} />
+              Login with GitHub
+            </button>
+          )}
         </div>
       </aside>
 

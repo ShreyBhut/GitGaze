@@ -25,10 +25,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
 from database import get_db, AsyncSessionLocal
-from models import Project, Snapshot, FileNode, DependencyEdge, AISummary
+from models import Project, Snapshot, FileNode, DependencyEdge, AISummary, User
 from workers.progress_store import create_queue, get_queue
 from workers.analysis_worker import run_analysis
 from services.ai_service import generate_code_summary
+from routers.auth import get_current_user
 
 router = APIRouter(tags=["snapshots"])
 
@@ -45,6 +46,7 @@ async def create_snapshot(
     project_id: str,
     background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
     """
     Creates a Snapshot row (status=pending), registers a progress queue,
@@ -61,6 +63,8 @@ async def create_snapshot(
     project = proj_result.scalar_one_or_none()
     if project is None:
         raise HTTPException(status_code=404, detail=f"Project '{project_id}' not found.")
+    if project.is_private and (not user or project.user_id != user.id):
+        raise HTTPException(status_code=401, detail="Unauthorized access to private project")
 
     # Create the snapshot record
     snapshot = Snapshot(
@@ -99,13 +103,17 @@ async def create_snapshot(
 async def list_snapshots(
     project_id: str,
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
     # Verify project exists
     proj_result = await session.execute(
         select(Project).where(Project.id == project_id)
     )
-    if proj_result.scalar_one_or_none() is None:
+    project = proj_result.scalar_one_or_none()
+    if project is None:
         raise HTTPException(status_code=404, detail=f"Project '{project_id}' not found.")
+    if project.is_private and (not user or project.user_id != user.id):
+        raise HTTPException(status_code=401, detail="Unauthorized access to private project")
 
     result = await session.execute(
         select(Snapshot)
@@ -131,8 +139,9 @@ async def list_snapshots(
 async def get_snapshot(
     snapshot_id: str,
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
-    snapshot = await _get_snapshot_or_404(snapshot_id, session)
+    snapshot = await _get_snapshot_and_check_access(snapshot_id, session, user)
 
     # Count persisted nodes for progress context
     nodes_result = await session.execute(
@@ -150,6 +159,7 @@ async def get_snapshot(
 async def snapshot_progress(
     snapshot_id: str,
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
     """
     Server-Sent Events stream for analysis progress (AD-007).
@@ -162,7 +172,7 @@ async def snapshot_progress(
     The stream closes automatically after a "done" or "error" event.
     A keep-alive comment (`: ping`) is sent every 15 s to prevent proxy timeouts.
     """
-    snapshot = await _get_snapshot_or_404(snapshot_id, session)
+    snapshot = await _get_snapshot_and_check_access(snapshot_id, session, user)
 
     # If already finished, emit a single terminal event and close immediately
     if snapshot.status == "completed":
@@ -226,6 +236,7 @@ async def snapshot_progress(
 async def get_graph(
     snapshot_id: str,
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
     """
     Returns all FileNode and DependencyEdge records for a completed snapshot
@@ -234,7 +245,7 @@ async def get_graph(
     Nodes contain: id, file_path, node_type, language, metrics, imports, functions
     Edges contain: id, source (node_id), target (node_id), import_string, edge_type
     """
-    snapshot = await _get_snapshot_or_404(snapshot_id, session)
+    snapshot = await _get_snapshot_and_check_access(snapshot_id, session, user)
 
     if snapshot.status != "completed":
         raise HTTPException(
@@ -295,8 +306,9 @@ async def get_node_summary(
     snapshot_id: str,
     node_id: str,
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
-    snapshot = await _get_snapshot_or_404(snapshot_id, session)
+    snapshot = await _get_snapshot_and_check_access(snapshot_id, session, user)
 
     # 1. Fetch FileNode
     node_result = await session.execute(
@@ -374,12 +386,13 @@ async def save_graph_positions(
     snapshot_id: str,
     positions: Dict[str, NodePosition] = Body(..., description="{node_id: {x, y}}"),
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
     """
     Saves canvas positions for one or more nodes so the layout is preserved
     between sessions. Only nodes present in `positions` are updated (partial update).
     """
-    snapshot = await _get_snapshot_or_404(snapshot_id, session)
+    snapshot = await _get_snapshot_and_check_access(snapshot_id, session, user)
 
     if snapshot.status != "completed":
         raise HTTPException(
@@ -427,6 +440,17 @@ async def _get_snapshot_or_404(snapshot_id: str, session: AsyncSession) -> Snaps
     snapshot = result.scalar_one_or_none()
     if snapshot is None:
         raise HTTPException(status_code=404, detail=f"Snapshot '{snapshot_id}' not found.")
+    return snapshot
+
+async def _get_snapshot_and_check_access(snapshot_id: str, session: AsyncSession, user: User | None) -> Snapshot:
+    snapshot = await _get_snapshot_or_404(snapshot_id, session)
+    
+    proj_result = await session.execute(select(Project).where(Project.id == snapshot.project_id))
+    project = proj_result.scalar_one_or_none()
+    
+    if project and project.is_private and (not user or project.user_id != user.id):
+        raise HTTPException(status_code=401, detail="Unauthorized access to private project snapshot")
+        
     return snapshot
 
 

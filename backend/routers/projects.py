@@ -134,8 +134,17 @@ def _project_to_response(
 # ---------------------------------------------------------------------------
 
 @router.get("", summary="List all projects")
-async def list_projects(session: AsyncSession = Depends(get_db)):
-    result = await session.execute(select(Project).order_by(desc(Project.created_at)))
+async def list_projects(
+    session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user)
+):
+    query = select(Project).order_by(desc(Project.created_at))
+    if user:
+        query = query.where((Project.is_private == False) | (Project.user_id == user.id))
+    else:
+        query = query.where(Project.is_private == False)
+        
+    result = await session.execute(query)
     projects = result.scalars().all()
 
     items = []
@@ -220,8 +229,12 @@ async def create_project(
 async def get_project(
     project_id: str,
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
     project = await _get_project_or_404(project_id, session)
+    if project.is_private and (not user or project.user_id != user.id):
+        raise HTTPException(status_code=401, detail="Unauthorized access to private project")
+        
     latest = await _latest_snapshot(project_id, session)
 
     config_result = await session.execute(
@@ -236,8 +249,12 @@ async def get_project(
 async def delete_project(
     project_id: str,
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
     project = await _get_project_or_404(project_id, session)
+    if project.is_private and (not user or project.user_id != user.id):
+        raise HTTPException(status_code=401, detail="Unauthorized access to private project")
+        
     await session.delete(project)
     await session.commit()
     # 204 No Content — return nothing
@@ -248,8 +265,11 @@ async def update_config(
     project_id: str,
     body: AnalysisConfigUpdate,
     session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
 ):
-    await _get_project_or_404(project_id, session)
+    project = await _get_project_or_404(project_id, session)
+    if project.is_private and (not user or project.user_id != user.id):
+        raise HTTPException(status_code=401, detail="Unauthorized access to private project")
 
     config_result = await session.execute(
         select(AnalysisConfig).where(AnalysisConfig.project_id == project_id)

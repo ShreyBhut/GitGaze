@@ -103,15 +103,7 @@ export function ProjectCard({ project }: Props) {
           }
         </button>
 
-        {/* View last result */}
-        {project.latest_snapshot?.status === 'completed' && (
-          <button
-            className="btn-ghost flex-1 text-xs py-1.5 h-8"
-            onClick={() => navigate(`/analysis/${project.id}/${project.latest_snapshot!.id}`)}
-          >
-            View graph <ChevronRight size={12} />
-          </button>
-        )}
+
 
         {/* Delete */}
         {confirmDelete ? (

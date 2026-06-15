@@ -62,7 +62,7 @@ export function ProjectsPage() {
           />
           <input
             className="input pl-9"
-            placeholder="Filter by name or path…"
+            placeholder="Find a Repository..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

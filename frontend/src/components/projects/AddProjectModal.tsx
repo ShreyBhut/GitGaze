@@ -103,7 +103,7 @@ export function AddProjectModal({ open, onClose }: Props) {
                 id="proj-name"
                 ref={nameRef}
                 className="input"
-                placeholder="My Awesome Project"
+                placeholder="Enter a Project Name..."
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoComplete="off"

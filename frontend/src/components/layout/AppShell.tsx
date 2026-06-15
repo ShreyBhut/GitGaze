@@ -5,7 +5,6 @@ import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
   { to: '/projects', icon: FolderGit2, label: 'Projects' },
-  { to: '/analysis',  icon: BarChart3,  label: 'Analysis'  },
   { to: '/settings',  icon: Settings,   label: 'Settings'  },
 ];
 
@@ -43,10 +42,10 @@ export function AppShell() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                   isActive
-                    ? 'text-black'
-                    : 'hover:text-primary'
+                    ? 'text-black translate-x-1'
+                    : 'hover:text-white hover:bg-zinc-800/50 hover:translate-x-1'
                 }`
               }
               style={({ isActive }) =>

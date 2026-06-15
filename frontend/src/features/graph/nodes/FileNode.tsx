@@ -42,9 +42,9 @@ export const FileNodeComponent = memo(({ data, selected }: NodeProps<any>) => {
         background: selected
           ? '#f1f5f9'
           : '#ffffff',
-        border: `1px solid ${selected ? 'var(--accent)' : 'rgba(0,0,0,0.1)'}`,
+        border: `1px solid ${selected ? '#ffffff' : 'rgba(0,0,0,0.1)'}`,
         boxShadow: selected
-          ? '0 0 0 2px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.15)'
+          ? '0 0 25px 5px rgba(255, 255, 255, 0.7), 0 0 10px rgba(255, 255, 255, 0.5)'
           : '0 2px 8px rgba(0,0,0,0.08)',
         borderRadius: 10,
         padding: '10px 14px',

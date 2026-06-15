@@ -1,9 +1,9 @@
 // src/pages/AnalysisPage.tsx
 // Full analysis view: SSE progress → stats → interactive graph canvas + inspector panel.
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, BarChart3, FileCode2, GitBranch, Layers } from 'lucide-react';
+import { ArrowLeft, BarChart3, FileCode2, GitBranch, Layers, Search } from 'lucide-react';
 import { ReactFlowProvider } from '@xyflow/react';
 
 import { snapshotsApi, projectsApi, queryKeys } from '../lib/api';
@@ -20,6 +20,8 @@ export function AnalysisPage() {
   }>();
   const { setActiveSnapshotId, setGraphData, graphData: storeGraph, reset } = useGraphStore();
   const [selectedNode, setSelectedNode] = useState<FileNode | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // ── Project info ───────────────────────────────────────────────────────
   const { data: project } = useQuery({
@@ -71,6 +73,14 @@ export function AnalysisPage() {
     ? [...new Set(activeGraph.nodes.map((n) => n.language).filter(Boolean))]
     : [];
 
+  const searchResults = useMemo(() => {
+    if (!activeGraph || !searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return activeGraph.nodes
+      .filter((n) => n.file_path.toLowerCase().includes(query))
+      .slice(0, 10);
+  }, [activeGraph, searchQuery]);
+
   return (
     <div
       style={{
@@ -116,6 +126,80 @@ export function AnalysisPage() {
         </span>
 
         <div style={{ flex: 1 }} />
+
+        {/* Search bar */}
+        {isComplete && activeGraph && (
+          <div style={{ position: 'relative', width: 220 }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Search size={14} style={{ position: 'absolute', left: 10, color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                placeholder="Search files..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                style={{
+                  width: '100%',
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 16,
+                  padding: '5px 12px 5px 30px',
+                  fontSize: 11,
+                  color: 'var(--text-primary)',
+                  outline: 'none',
+                }}
+              />
+            </div>
+            {isSearchFocused && searchResults.length > 0 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  marginTop: 6,
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  padding: 4,
+                  boxShadow: 'var(--shadow-md)',
+                  zIndex: 100,
+                  maxHeight: 300,
+                  overflowY: 'auto',
+                }}
+              >
+                {searchResults.map((node) => (
+                  <div
+                    key={node.id}
+                    onClick={() => {
+                      handleNodeSelect(node);
+                      setSearchQuery('');
+                      setIsSearchFocused(false);
+                    }}
+                    style={{
+                      padding: '6px 10px',
+                      cursor: 'pointer',
+                      borderRadius: 6,
+                      fontSize: 12,
+                      color: 'var(--text-primary)',
+                      borderBottom: '1px solid var(--border)',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {node.file_path.split('/').pop()}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {node.file_path}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Stats pills (shown when complete) */}
         {isComplete && activeGraph && (

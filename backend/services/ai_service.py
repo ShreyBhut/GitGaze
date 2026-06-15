@@ -4,9 +4,9 @@ from fastapi import HTTPException
 
 # Configuration happens inside the function to ensure it picks up env vars correctly
 
-async def generate_code_summary(code_content: str) -> str:
+async def generate_code_summary(code_content: str, detail_level: str = "concise") -> str:
     """
-    Generates a concise markdown summary of the provided code using Gemini.
+    Generates a markdown summary of the provided code using Gemini.
     """
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
@@ -20,7 +20,23 @@ async def generate_code_summary(code_content: str) -> str:
     try:
         model = genai.GenerativeModel("gemini-flash-lite-latest")
         
-        prompt = f"""
+        if detail_level == "detailed":
+            prompt = f"""
+You are an expert software architect analyzing code. 
+Please provide a comprehensive and highly detailed summary of the following code file.
+
+Rules:
+1. Provide a thorough high-level overview.
+2. List all key functions, classes, and variables with detailed explanations of their purpose and behavior.
+3. Output the result in clean Markdown format.
+
+Code:
+```
+{code_content}
+```
+"""
+        else:
+            prompt = f"""
 You are an expert software architect analyzing code. 
 Please provide a highly concise but technically accurate summary of the following code file.
 

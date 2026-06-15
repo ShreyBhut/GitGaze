@@ -260,6 +260,23 @@ async def delete_project(
     # 204 No Content — return nothing
 
 
+@router.delete("", status_code=204, summary="Delete all projects for user")
+async def delete_all_projects(
+    session: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_current_user),
+):
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+        
+    result = await session.execute(select(Project).where(Project.user_id == user.id))
+    projects = result.scalars().all()
+    
+    for p in projects:
+        await session.delete(p)
+        
+    await session.commit()
+
+
 @router.patch("/{project_id}/config", summary="Update analysis configuration")
 async def update_config(
     project_id: str,

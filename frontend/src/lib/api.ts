@@ -57,6 +57,9 @@ export const projectsApi = {
   delete: (id: string): Promise<void> =>
     request(`${BASE}/projects/${id}`, { method: 'DELETE' }),
 
+  deleteAll: (): Promise<void> =>
+    request(`${BASE}/projects`, { method: 'DELETE' }),
+
   updateConfig: (id: string, config: Partial<AnalysisConfig>): Promise<AnalysisConfig> =>
     request(`${BASE}/projects/${id}/config`, {
       method: 'PATCH',
@@ -89,8 +92,8 @@ export const snapshotsApi = {
       body: JSON.stringify(positions),
     }),
 
-  getSummary: (snapshotId: string, nodeId: string): Promise<{ summary: string; cached: boolean }> =>
-    request(`${BASE}/snapshots/${snapshotId}/nodes/${nodeId}/summary`),
+  getSummary: (snapshotId: string, nodeId: string, detailLevel: string = 'concise'): Promise<{ summary: string; cached: boolean }> =>
+    request(`${BASE}/snapshots/${snapshotId}/nodes/${nodeId}/summary?detail_level=${detailLevel}`),
 
   /**
    * Returns a native EventSource for the SSE progress stream.

@@ -16,7 +16,8 @@ export function AISummaryPanel({ snapshotId, nodeId }: { snapshotId: string; nod
       setError(null);
       setSummary(null);
       try {
-        const res = await snapshotsApi.getSummary(snapshotId, nodeId);
+        const detailLevel = localStorage.getItem('ai_detail_level') || 'concise';
+        const res = await snapshotsApi.getSummary(snapshotId, nodeId, detailLevel);
         if (isMounted) {
           setSummary(res.summary);
           setIsCached(res.cached);

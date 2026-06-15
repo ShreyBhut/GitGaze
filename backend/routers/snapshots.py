@@ -18,7 +18,7 @@ import os
 from datetime import datetime
 from typing import Optional, Dict
 
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -305,6 +305,7 @@ async def get_graph(
 async def get_node_summary(
     snapshot_id: str,
     node_id: str,
+    detail_level: str = Query("concise"),
     session: AsyncSession = Depends(get_db),
     user: User | None = Depends(get_current_user),
 ):
@@ -322,12 +323,13 @@ async def get_node_summary(
         raise HTTPException(status_code=400, detail="Cannot summarize directories")
 
     project_id = snapshot.project_id
+    cache_hash = f"{file_node.content_hash}_{detail_level}"
     
     # 2. Check if summary exists in DB (Cache hit)
     summary_result = await session.execute(
         select(AISummary).where(
             AISummary.project_id == project_id,
-            AISummary.content_hash == file_node.content_hash,
+            AISummary.content_hash == cache_hash,
             AISummary.file_path == file_node.file_path
         )
     )
@@ -354,13 +356,13 @@ async def get_node_summary(
         raise HTTPException(status_code=500, detail=f"Failed to read file: {e}")
         
     # 4. Call AI Service
-    summary_text = await generate_code_summary(content)
+    summary_text = await generate_code_summary(content, detail_level)
     
     # 5. Save to cache
     new_summary = AISummary(
         project_id=project_id,
         file_path=file_node.file_path,
-        content_hash=file_node.content_hash,
+        content_hash=cache_hash,
         summary_text=summary_text
     )
     session.add(new_summary)

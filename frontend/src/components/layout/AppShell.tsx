@@ -5,7 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
   { to: '/projects', icon: FolderGit2, label: 'Projects' },
-  { to: '/settings',  icon: Settings,   label: 'Settings'  },
+  { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
 export function AppShell() {
@@ -23,16 +23,24 @@ export function AppShell() {
         style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
       >
         {/* Logo */}
-        <div className="flex items-center px-5 py-6 border-b" style={{ borderColor: 'var(--border)' }}>
-          <p
-            className="text-2xl font-bold tracking-tight"
+        <div className="flex items-center justify-center w-full py-6 border-b" style={{ borderColor: 'var(--border)' }}>
+          <div
+            className="px-5 py-2 rounded-xl"
             style={{
-              color: '#FFD700',
-              textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 2px rgba(255,255,255,0.9)',
+              border: '3px solid white',
+              boxShadow: '0 0 12px rgba(255,255,255,0.3), inset 0 0 8px rgba(255,255,255,0.2)'
             }}
           >
-            GitGaze
-          </p>
+            <p
+              className="text-4xl font-bold tracking-tight"
+              style={{
+                color: '#FFD700',
+                textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 2px rgba(255,255,255,0.9)',
+              }}
+            >
+              GitGaze
+            </p>
+          </div>
         </div>
 
         {/* Navigation */}
@@ -42,10 +50,9 @@ export function AppShell() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  isActive
-                    ? 'text-black translate-x-1'
-                    : 'hover:text-white hover:bg-zinc-800/50 hover:translate-x-1'
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
+                  ? 'text-black translate-x-1'
+                  : 'hover:text-white hover:bg-zinc-800/50 hover:translate-x-1'
                 }`
               }
               style={({ isActive }) =>
@@ -73,7 +80,8 @@ export function AppShell() {
               </div>
               <button
                 onClick={logout}
-                className="btn-ghost w-8 h-8 p-0 rounded-lg shrink-0 flex items-center justify-center text-zinc-400 hover:text-white"
+                className="w-8 h-8 p-0 rounded-lg shrink-0 flex items-center justify-center text-white transition-colors"
+                style={{ background: 'var(--danger)' }}
                 title="Log out"
               >
                 <LogOut size={14} />

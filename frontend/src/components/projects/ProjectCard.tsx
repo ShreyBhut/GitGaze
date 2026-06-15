@@ -122,8 +122,8 @@ export function ProjectCard({ project }: Props) {
         ) : (
           <button
             id={`delete-${project.id}`}
-            className="btn-ghost w-8 h-8 p-0 rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{ color: 'var(--danger)' }}
+            className="w-8 h-8 p-0 rounded-lg text-xs flex items-center justify-center transition-opacity shrink-0"
+            style={{ background: 'var(--danger)', color: 'white' }}
             onClick={() => setConfirmDelete(true)}
             title="Delete project"
           >

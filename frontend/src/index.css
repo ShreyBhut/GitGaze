@@ -182,3 +182,13 @@ code, pre, kbd, .mono {
 .react-flow__controls-button:hover {
   background-color: #f1f5f9 !important;
 }
+
+/* Dim unselected nodes and edges when a node is selected */
+.react-flow:has(.react-flow__node.selected) .react-flow__node:not(.selected) {
+  opacity: 0.2;
+  transition: opacity 0.2s ease;
+}
+.react-flow:has(.react-flow__node.selected) .react-flow__edge {
+  opacity: 0.1;
+  transition: opacity 0.2s ease;
+}

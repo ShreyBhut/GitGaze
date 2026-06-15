@@ -89,6 +89,9 @@ export const snapshotsApi = {
       body: JSON.stringify(positions),
     }),
 
+  getSummary: (snapshotId: string, nodeId: string): Promise<{ summary: string; cached: boolean }> =>
+    request(`${BASE}/snapshots/${snapshotId}/nodes/${nodeId}/summary`),
+
   /**
    * Returns a native EventSource for the SSE progress stream.
    * Caller is responsible for calling .close() when done.

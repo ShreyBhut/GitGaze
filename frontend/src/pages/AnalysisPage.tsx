@@ -181,6 +181,7 @@ export function AnalysisPage() {
           {/* Inspector panel slides in when a node is selected */}
           {selectedNode && (
             <InspectorPanel
+              snapshotId={snapshotId!}
               node={selectedNode}
               onClose={() => setSelectedNode(null)}
             />

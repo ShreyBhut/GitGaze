@@ -14,6 +14,7 @@ GET    /api/v1/snapshots/{snapshot_id}/graph      Full graph data (nodes + edges
 import asyncio
 import json
 import uuid
+import os
 from datetime import datetime
 from typing import Optional, Dict
 
@@ -24,9 +25,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
 from database import get_db, AsyncSessionLocal
-from models import Project, Snapshot, FileNode, DependencyEdge
+from models import Project, Snapshot, FileNode, DependencyEdge, AISummary
 from workers.progress_store import create_queue, get_queue
 from workers.analysis_worker import run_analysis
+from services.ai_service import generate_code_summary
 
 router = APIRouter(tags=["snapshots"])
 
@@ -283,6 +285,76 @@ async def get_graph(
             for e in edges
         ],
     }
+
+
+@router.get(
+    "/api/v1/snapshots/{snapshot_id}/nodes/{node_id}/summary",
+    summary="Generate or retrieve an AI summary for a specific file node",
+)
+async def get_node_summary(
+    snapshot_id: str,
+    node_id: str,
+    session: AsyncSession = Depends(get_db),
+):
+    snapshot = await _get_snapshot_or_404(snapshot_id, session)
+
+    # 1. Fetch FileNode
+    node_result = await session.execute(
+        select(FileNode).where(FileNode.id == node_id, FileNode.snapshot_id == snapshot_id)
+    )
+    file_node = node_result.scalar_one_or_none()
+    if not file_node:
+        raise HTTPException(status_code=404, detail="File node not found")
+        
+    if file_node.node_type == "dir":
+        raise HTTPException(status_code=400, detail="Cannot summarize directories")
+
+    project_id = snapshot.project_id
+    
+    # 2. Check if summary exists in DB (Cache hit)
+    summary_result = await session.execute(
+        select(AISummary).where(
+            AISummary.project_id == project_id,
+            AISummary.content_hash == file_node.content_hash,
+            AISummary.file_path == file_node.file_path
+        )
+    )
+    cached_summary = summary_result.scalar_one_or_none()
+    
+    if cached_summary:
+        return {"summary": cached_summary.summary_text, "cached": True}
+        
+    # 3. Read file content
+    proj_result = await session.execute(select(Project).where(Project.id == project_id))
+    project = proj_result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+        
+    abs_path = os.path.join(project.path, file_node.file_path)
+    if not os.path.exists(abs_path):
+        raise HTTPException(status_code=404, detail="File does not exist on disk")
+        
+    try:
+        # Limit to 50KB to avoid massive prompt sizes
+        with open(abs_path, 'r', encoding='utf-8') as f:
+            content = f.read(50000)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read file: {e}")
+        
+    # 4. Call AI Service
+    summary_text = await generate_code_summary(content)
+    
+    # 5. Save to cache
+    new_summary = AISummary(
+        project_id=project_id,
+        file_path=file_node.file_path,
+        content_hash=file_node.content_hash,
+        summary_text=summary_text
+    )
+    session.add(new_summary)
+    await session.commit()
+    
+    return {"summary": summary_text, "cached": False}
 
 
 # ---------------------------------------------------------------------------

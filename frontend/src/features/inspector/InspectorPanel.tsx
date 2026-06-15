@@ -2,8 +2,10 @@
 // Side panel displayed when a node is selected in the graph canvas.
 import { X, FileCode2, BarChart2, ArrowRight, Code2, Hash } from 'lucide-react';
 import type { FileNode } from '../../types';
+import { AISummaryPanel } from './AISummaryPanel';
 
 interface Props {
+  snapshotId: string;
   node: FileNode;
   onClose: () => void;
 }
@@ -21,7 +23,7 @@ function langColor(lang: string | null) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function InspectorPanel({ node, onClose }: Props) {
+export function InspectorPanel({ snapshotId, node, onClose }: Props) {
   const parts = node.file_path.split('/');
   const filename = parts[parts.length - 1];
   const color = langColor(node.language);
@@ -139,6 +141,11 @@ export function InspectorPanel({ node, onClose }: Props) {
               {node.language}
             </span>
           </div>
+        )}
+
+        {/* AI Summary */}
+        {node.node_type === 'file' && (
+          <AISummaryPanel snapshotId={snapshotId} nodeId={node.id} />
         )}
 
         {/* ── Metrics ─────────────────────────────────────────────────────── */}

@@ -118,3 +118,8 @@ async def get_me(user: User | None = Depends(get_current_user)):
         "username": user.username,
         "avatar_url": user.avatar_url
     }
+
+@router.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie(key="auth_token", httponly=True, samesite="lax")
+    return {"message": "Logged out successfully"}

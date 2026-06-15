@@ -34,6 +34,8 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 export const authApi = {
   getMe: (): Promise<{ id: string; username: string; avatar_url: string }> =>
     request(`${BASE}/auth/me`),
+  logout: (): Promise<void> =>
+    request(`${BASE}/auth/logout`, { method: 'POST' }),
 };
 
 // ---------------------------------------------------------------------------

@@ -12,6 +12,7 @@ interface AuthState {
   isLoading: boolean;
   checkAuth: () => Promise<void>;
   login: () => void;
+  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -27,5 +28,13 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
   login: () => {
     window.location.href = 'http://localhost:8000/api/v1/auth/github/login';
+  },
+  logout: async () => {
+    try {
+      await authApi.logout();
+      set({ user: null });
+    } catch {
+      // Ignore
+    }
   }
 }));

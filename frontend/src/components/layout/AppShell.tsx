@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { FolderGit2, BarChart3, Settings, Zap, LogIn } from 'lucide-react';
+import { FolderGit2, BarChart3, Settings, Zap, LogIn, LogOut } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
@@ -10,7 +10,7 @@ const navItems = [
 ];
 
 export function AppShell() {
-  const { user, isLoading, checkAuth, login } = useAuthStore();
+  const { user, isLoading, checkAuth, login, logout } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
@@ -77,6 +77,13 @@ export function AppShell() {
                 <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user.username}</p>
                 <p className="text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>GitHub User</p>
               </div>
+              <button
+                onClick={logout}
+                className="btn-ghost w-8 h-8 p-0 rounded-lg shrink-0 flex items-center justify-center text-zinc-400 hover:text-white"
+                title="Log out"
+              >
+                <LogOut size={14} />
+              </button>
             </div>
           ) : (
             <button

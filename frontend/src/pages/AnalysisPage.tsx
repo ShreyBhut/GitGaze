@@ -257,6 +257,7 @@ export function AnalysisPage() {
               <GraphCanvas
                 graphData={activeGraph}
                 snapshotId={snapshotId!}
+                selectedNodeId={selectedNode?.id}
                 onNodeSelect={handleNodeSelect}
               />
             </div>

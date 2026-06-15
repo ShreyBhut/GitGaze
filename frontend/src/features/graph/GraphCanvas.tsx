@@ -14,6 +14,7 @@ import {
   type NodeMouseHandler,
   type OnNodeDrag,
   Panel,
+  useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from '@dagrejs/dagre';
@@ -114,12 +115,14 @@ function buildRFData(graphData: GraphData): { nodes: Node[]; edges: Edge[] } {
 interface Props {
   graphData: GraphData;
   snapshotId: string;
+  selectedNodeId?: string;
   onNodeSelect: (node: FileNodeData | null) => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function GraphCanvas({ graphData, snapshotId, onNodeSelect }: Props) {
+export function GraphCanvas({ graphData, snapshotId, selectedNodeId, onNodeSelect }: Props) {
+  const { setCenter, getNodes } = useReactFlow();
   const initial = useMemo(() => buildRFData(graphData), [graphData]);
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
   const [edges, , onEdgesChange] = useEdgesState(initial.edges);
@@ -127,8 +130,26 @@ export function GraphCanvas({ graphData, snapshotId, onNodeSelect }: Props) {
   // Re-sync when graphData changes (e.g. new snapshot loaded)
   useEffect(() => {
     const next = buildRFData(graphData);
-    setNodes(next.nodes);
-  }, [graphData, setNodes]);
+    setNodes(next.nodes.map(n => ({ ...n, selected: n.id === selectedNodeId })));
+  }, [graphData, setNodes, selectedNodeId]);
+
+  // Center and select node when selectedNodeId changes
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((n) => ({
+        ...n,
+        selected: n.id === selectedNodeId,
+      }))
+    );
+    if (selectedNodeId) {
+      setTimeout(() => {
+        const node = getNodes().find((n) => n.id === selectedNodeId);
+        if (node) {
+          setCenter(node.position.x + NODE_W / 2, node.position.y + NODE_H / 2, { zoom: 1.2, duration: 800 });
+        }
+      }, 50);
+    }
+  }, [selectedNodeId, setCenter, setNodes, getNodes]);
 
   // ── Position persistence ────────────────────────────────────────────────
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

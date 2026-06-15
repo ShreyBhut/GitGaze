@@ -24,21 +24,16 @@ export function AppShell() {
         style={{ background: 'var(--bg-surface)', borderColor: 'var(--border)' }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-5 py-5 border-b" style={{ borderColor: 'var(--border)' }}>
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-            style={{ background: 'var(--accent)', boxShadow: '0 0 12px var(--accent-glow)' }}
+        <div className="flex items-center px-5 py-6 border-b" style={{ borderColor: 'var(--border)' }}>
+          <p
+            className="text-2xl font-bold tracking-tight"
+            style={{
+              color: '#FFD700',
+              textShadow: '0 0 8px rgba(255,255,255,0.6), 0 0 2px rgba(255,255,255,0.9)',
+            }}
           >
-            <Zap size={14} className="text-black" />
-          </div>
-          <div>
-            <p className="text-sm font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-              GitGaze
-            </p>
-            <p className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
-              v0.2.0
-            </p>
-          </div>
+            GitGaze
+          </p>
         </div>
 
         {/* Navigation */}

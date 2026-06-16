@@ -4,7 +4,7 @@ GitGaze is a highly interactive, full-stack visualizer and AI-powered static ana
 
 Coupled with a Gemini AI integration, it allows developers to instantly understand complex codebases, visualize how files connect to one another, and request highly detailed, cached AI summaries of any given file.
 
-## 🌟 Features
+## ✨ Features
 
 - **GitHub OAuth Integration:** Securely login via GitHub. Grants read access to securely clone and analyze even your private repositories.
 - **Deep Static Analysis:** Automatically parses Python, TypeScript, and JavaScript files to map out functions, classes, Lines of Code (LOC), and cross-file dependencies.
@@ -89,7 +89,13 @@ The frontend will be available at `http://localhost:5173`.
 
 ---
 
-## 💡 Architecture Assumptions & Verification Highlights
+## 🌟 GitGaze in the Working
+
+<img width="720" height="342" alt="Screenshot 2026-06-16 063352" src="https://github.com/user-attachments/assets/dadc70ec-d146-484f-932d-755daf77386e" />
+<img width="720" height="342" alt="Screenshot 2026-06-16 063924" src="https://github.com/user-attachments/assets/3f2ca418-f300-4985-994b-edcac034631e" />
+<img width="720" height="342" alt="Screenshot 2026-06-16 063618" src="https://github.com/user-attachments/assets/ecb5c1b2-f46b-41c6-8efd-9b6669b73a8c" />
+
+## 💡 Architecture Highlights
 
 If you are verifying or evaluating this project, here are some deliberate architectural decisions designed to highlight engineering best practices:
 
